@@ -1,0 +1,65 @@
+[
+  {
+    "emetteur": "application",
+    "destinataire": "Gemini",
+    "type": "requete",
+    "messages": [
+      {
+        "text": "Tu réponds en français. Pour les prévisions de pluie, utilise les outils disponibles.\nSi la ville est donnée par son nom, appelle getCoordonnees puis isPluiePrevue.\nNe fabrique ni prévisions, ni coordonnées d’une ville inconnue ; signale toute information manquante.\nSi un outil échoue, explique que la météo n’a pas pu être déterminée.\nRéponds aussi aux questions générales sans utiliser les outils météo lorsque ce n’est pas utile.\n"
+      },
+      {
+        "contents": [
+          {
+            "text": "J’ai prévu d’aller aujourd’hui à la ville de Zzyzx pour un séjour de 3 jours. Est-ce que tu me conseilles de mettre un parapluie dans ma valise ?"
+          }
+        ]
+      }
+    ],
+    "outils": [
+      {
+        "name": "isPluiePrevue",
+        "description": "Indique si une probabilité quotidienne de pluie dépasse le seuil pendant le séjour.\nUtiliser les coordonnées latitude/longitude de la ville.\nnbJoursDebut vaut 0 pour aujourd’hui, 1 pour demain, etc.\nnbJours est la durée du séjour. La période complète doit tenir dans les 7 prochains jours.\nLes jours sont ceux du fuseau horaire du lieu ; true conseille un parapluie.\n",
+        "parameters": {
+          "properties": {
+            "latitude": {
+              "description": "Latitude entre -90 et 90"
+            },
+            "longitude": {
+              "description": "Longitude entre -180 et 180"
+            },
+            "nbJoursDebut": {
+              "description": "Nombre de jours après aujourd’hui avant le départ"
+            },
+            "nbJours": {
+              "description": "Durée du séjour en jours"
+            }
+          },
+          "required": [
+            "latitude",
+            "longitude",
+            "nbJoursDebut",
+            "nbJours"
+          ],
+          "definitions": {}
+        },
+        "metadata": {}
+      },
+      {
+        "name": "getCoordonnees",
+        "description": "Recherche les coordonnées d’une ville par son nom en anglais avant d’utiliser l’outil pluie.\nRetourne [latitude, longitude]. Pour lever une ambiguïté, utiliser Ville,Pays en anglais,\npar exemple Rabat,Morocco. Ne pas inventer de coordonnées si la recherche échoue.\n",
+        "parameters": {
+          "properties": {
+            "ville": {
+              "description": "Nom de ville en anglais, éventuellement suivi de ,Pays en anglais"
+            }
+          },
+          "required": [
+            "ville"
+          ],
+          "definitions": {}
+        },
+        "metadata": {}
+      }
+    ]
+  }
+]

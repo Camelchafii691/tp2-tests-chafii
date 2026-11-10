@@ -1,0 +1,27 @@
+[
+  {
+    "emetteur": "Gemini",
+    "destinataire": "application",
+    "type": "reponse",
+    "appelOutil": {
+      "id": "call_766783811389214572",
+      "nom": "getCoordonnees",
+      "arguments": {
+        "arg0": "Zzyzx"
+      }
+    }
+  },
+  {
+    "emetteur": "application",
+    "destinataire": "Gemini",
+    "type": "requete",
+    "resultatOutil": {
+      "id": "call_766783811389214572",
+      "nom": "getCoordonnees",
+      "valeur": [
+        35.14276,
+        -116.10474
+      ]
+    }
+  }
+]

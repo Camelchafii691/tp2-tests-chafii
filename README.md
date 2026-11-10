@@ -62,6 +62,12 @@ bash lancer.sh geo
 
 Ces commandes vérifient les embeddings locaux, l’ingestion des documents et les API météo. Elles ne valident pas les réponses d’un LLM. Consulter `VALIDATION.md` pour les résultats et les limites des vérifications réellement réalisées.
 
+## Résultats des exécutions Gemini
+
+Les appels ont été exécutés le **10 novembre 2026**. Voir **[COMPTE_RENDU.md](COMPTE_RENDU.md)** pour les réponses réelles et la comparaison des embeddings. Les tests 1 à 6 et les cas principaux de météo ont réussi. La dernière conversation journalisée sur Zzyzx est incomplète : Google a atteint le plafond quotidien gratuit de 20 requêtes pour le modèle choisi.
+
+Les requêtes sont espacées de 15 secondes par défaut dans un même processus (`GEMINI_MIN_INTERVAL_MS`). Cela aide à respecter le quota par minute, mais pas le plafond quotidien. En mode `7-logs`, les lignes `JSON_REQUETE` et `JSON_REPONSE` décrivent les messages LangChain4j observés, sans clé ni signatures opaques ; ce ne sont pas des captures HTTP natives.
+
 ## Utilisation de l’IA
 
 Voir `IA.md`. L’historique contient des commits réalisés à mesure de la préparation et de la vérification de chaque étape. Les dates réelles sont conservées.
