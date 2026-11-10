@@ -35,6 +35,7 @@ public final class Configuration {
                 .modelName(nom)
                 .temperature(temperature)
                 .timeout(Duration.ofSeconds(60))
+                .listeners(java.util.List.of(new ObservationGemini(logs)))
                 .maxRetries(0)
                 .logRequestsAndResponses(logs)
                 .build();

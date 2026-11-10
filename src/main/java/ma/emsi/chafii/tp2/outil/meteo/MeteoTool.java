@@ -35,10 +35,10 @@ public class MeteoTool {
         Les jours sont ceux du fuseau horaire du lieu ; true conseille un parapluie.
         """)
     public boolean isPluiePrevue(
-            @P("Latitude entre -90 et 90") double latitude,
-            @P("Longitude entre -180 et 180") double longitude,
-            @P("Nombre de jours après aujourd’hui avant le départ") int nbJoursDebut,
-            @P("Durée du séjour en jours") int nbJours) {
+            @P(value = "Latitude entre -90 et 90", name = "latitude") double latitude,
+            @P(value = "Longitude entre -180 et 180", name = "longitude") double longitude,
+            @P(value = "Nombre de jours après aujourd’hui avant le départ", name = "nbJoursDebut") int nbJoursDebut,
+            @P(value = "Durée du séjour en jours", name = "nbJours") int nbJours) {
         if (!Double.isFinite(latitude) || !Double.isFinite(longitude)
                 || latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
             throw new IllegalArgumentException("Coordonnées invalides.");
@@ -76,7 +76,7 @@ public class MeteoTool {
         Retourne [latitude, longitude]. Pour lever une ambiguïté, utiliser Ville,Pays en anglais,
         par exemple Rabat,Morocco. Ne pas inventer de coordonnées si la recherche échoue.
         """)
-    public double[] getCoordonnees(@P("Nom de ville en anglais, éventuellement suivi de ,Pays en anglais") String ville) {
+    public double[] getCoordonnees(@P(value = "Nom de ville en anglais, éventuellement suivi de ,Pays en anglais", name = "ville") String ville) {
         if (ville == null || ville.isBlank()) throw new IllegalArgumentException("Le nom de ville est obligatoire.");
         String[] morceaux = ville.trim().split(",", 2);
         String nom = morceaux[0].trim();
