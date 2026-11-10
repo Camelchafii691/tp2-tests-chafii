@@ -1,12 +1,52 @@
-# TP 2 — résultats des appels Gemini
+# Compte rendu du TP 2 — Tests LangChain4j
 
 Camel Chafii — EMSI CASA-IA G2. Exécutions du **10 novembre 2026**.
 
 Dépôt : https://github.com/Camelchafii691/tp2-tests-chafii
 
-Les réponses ci-dessous proviennent d’exécutions réelles. Les tests 1 à 6 et les principaux cas du test 7 ont été exécutés. **La dernière conversation sur Zzyzx reste incomplète**, car le modèle a atteint son quota quotidien gratuit. Le compte rendu ne doit donc pas être présenté comme un bonus intégralement terminé.
+## Présentation du travail
 
-Pour l’email demandé dans l’énoncé, recopier les éléments dans son corps, avec le format de sujet habituel du cours. N’ajouter « TP 2 - tests terminé » qu’une fois la dernière expérience achevée.
+Ce TP porte sur la première partie de l’énoncé : sept programmes Java en console pour découvrir LangChain4j, l’API Gemini, les templates de prompts, les embeddings, le RAG et l’utilisation d’outils. Chaque classe de test possède une méthode `main`. La partie application Web ne fait pas partie de ce projet.
+
+Ce document réunit les conditions d’exécution, les réponses réellement obtenues, les calculs, les comparaisons, les explications et les limites rencontrées. Les résultats proviennent des essais du 10 novembre 2026. Le scénario final sur Zzyzx a été interrompu par le quota de Google ; les échanges manquants sont signalés dans la section 7.
+
+## Environnement et organisation du projet
+
+| Élément | Configuration utilisée |
+|---|---|
+| Étudiant | Camel Chafii — EMSI CASA-IA G2 |
+| Langage et compilation | Temurin Java 25, projet Maven |
+| Package | `ma.emsi.chafii.tp2` |
+| LangChain4j | `1.23.0` et modules `1.23.0-beta33` |
+| Chat | `gemini-3.5-flash` ; température 0,7 |
+| Calcul des coûts | `gemini-3.5-flash-lite` |
+| Embeddings Google | `gemini-embedding-001`, tâche `SEMANTIC_SIMILARITY` |
+| Embeddings locaux | BGE Small anglais, variante quantifiée fournie par EasyRAG |
+| RAG | EasyRAG, magasin vectoriel en mémoire, température 0,3 |
+| Mémoire des assistants | 10 messages pour le RAG ; 20 pour la météo |
+| Outils météo | API Open-Meteo de prévisions et de géocodage |
+| Journalisation et JSON | Logback et Gson |
+| Clé API | Variable d’environnement ; absente du dépôt |
+
+Le premier commit du test 4 utilise `BgeSmallEnV15EmbeddingModel`. Lors de l’ajout d’EasyRAG, cette dépendance a été commentée pour éviter des fournisseurs d’embeddings concurrents. Le test 4 utilise ensuite la variante quantifiée fournie par EasyRAG.
+
+Les fichiers `infos.txt` et `infos-contradictoires.txt` servent au RAG texte. Le second isole l’expérience où Marseille est présentée comme capitale de la France. Le support de cours est chargé depuis `Machine learning.pdf`, présent localement et exclu de Git ; il peut être téléchargé depuis le [site du professeur](http://richard.grin.free.fr/emsi/casablanca-ia/supports/ml.pdf).
+
+Pour lancer un programme depuis la racine du projet, la commande est `bash lancer.sh NUMERO`, par exemple `bash lancer.sh 1`. Les détails des commandes sont dans [README.md](README.md). Les observations conservées se trouvent dans [observations/](observations/), et la déclaration d’aide de l’IA dans [IA.md](IA.md).
+
+## État des vérifications
+
+| Vérification | Résultat obtenu |
+|---|---|
+| Compilation et création du paquet Maven | Réussies avec Java 25 |
+| Script de lancement | Syntaxe vérifiée |
+| Tests 1 à 6 | Appels exécutés avec succès |
+| Météo sans outil | Réponse obtenue ; conseil général |
+| Outils météo sur Paris | Prévisions et géocodage utilisés avec succès |
+| Question générale pendant la conversation météo | Réponse obtenue : 12 × 7 = 84 |
+| Ville inexistante | Reprise réussie ; absence de coordonnées correctement signalée |
+| Zzyzx avec journalisation | Coordonnées obtenues ; suite interrompue par les quotas |
+| JSON d’observation | Sérialisation vérifiée ; distinction conservée avec le corps HTTP natif |
 
 ## 1. Question simple, heure actuelle et absence de mémoire
 
@@ -144,6 +184,24 @@ Bon séjour à Paris !
 
 La réponse donne un conseil général et recommande de consulter une source météo, sans avoir effectué de requête de prévision.
 
+### Vérification directe de l’API météo et du géocodage
+
+La classe `TestMeteo` appelle directement `MeteoTool`, sans LLM. Cela permet de comparer les réponses de l’assistant avec les valeurs de l’API.
+
+| Expérience directe | Valeurs ou résultat observés |
+|---|---|
+| Paris, du 10 au 12 novembre 2026 | Probabilités maximales de pluie : 93 %, 43 %, 8 % |
+| Paris, du 11 au 13 novembre 2026 | Probabilités maximales de pluie : 43 %, 8 %, 0 % |
+| Seuil de pluie de 25 % | `true` pour chacun des deux séjours de trois jours |
+| Seuil de pluie de 100 % | `false` pour chacun des deux séjours |
+| Début dans six jours pour trois jours de séjour | Période refusée, car elle dépasse les sept jours disponibles |
+| Géocodage de Paris | Latitude 48.85341 ; longitude 2.34880 |
+| Géocodage de Rabat, Morocco | Latitude 34.01325 ; longitude −6.83255 |
+| Géocodage de Zzyzx | Latitude 35.14276 ; longitude −116.10474 |
+| Ville inexistante | Erreur explicite : aucune coordonnée trouvée |
+
+La condition du code est une probabilité **strictement supérieure** au seuil. Avec un seuil de 100 %, aucune probabilité valide ne peut donc déclencher le conseil de prendre un parapluie. Les résultats météo correspondent aux réponses reçues le jour des essais, pas à une prévision permanente.
+
 ### Avec les outils : coordonnées, report du départ, question générale et nom de ville
 
 ```text
@@ -230,3 +288,17 @@ Un outil unique pourrait recevoir le nom de ville et la période du séjour. Son
 Les essais ont révélé un quota de cinq requêtes par minute, puis un plafond quotidien de vingt requêtes pour le modèle de chat choisi. Les requêtes de chat sont maintenant espacées de quinze secondes par défaut dans un même processus (`GEMINI_MIN_INTERVAL_MS`). Cet espacement aide à respecter le quota par minute, mais ne supprime pas le plafond quotidien ni l’usage simultané du même compte par d’autres applications.
 
 Les noms des paramètres d’outils sont désormais explicités et un observateur produit les lignes `JSON_REQUETE` et `JSON_REPONSE` avec les messages LangChain4j, sans clé API et sans signatures opaques. La compilation et la sérialisation des traces ont été vérifiées. La dernière réponse sur Zzyzx reste à obtenir après le renouvellement du quota.
+
+## Bilan du TP
+
+Les essais montrent la différence entre un appel sans historique et un assistant avec mémoire. Les templates permettent de paramétrer une demande de traduction ; les embeddings permettent de comparer des textes, mais un score élevé ne prouve pas l’absence de contradiction. Le RAG apporte des informations issues de documents locaux et peut aussi propager une erreur contenue dans ces documents. Les outils donnent accès à des informations externes récentes, comme les prévisions météo, que le modèle ne possède pas directement.
+
+Les tests 1 à 6 ont été exécutés et les cas principaux du test 7 ont produit des réponses. Le scénario Zzyzx n’a pas pu être validé jusqu’au conseil final à cause du quota quotidien. Les résultats disponibles et cette limite font partie du présent compte rendu.
+
+## Références et pièces du projet
+
+- [Énoncé du TP 2 de Richard Grin](http://richard.grin.free.fr/emsi/casablanca-ia/tp/tp2-langchain4j/index.html).
+- [Support de cours LangChain4j](http://richard.grin.free.fr/emsi/casablanca-ia/supports/langchain4j.pdf).
+- [Tarifs Gemini utilisés pour le calcul du test 2](https://ai.google.dev/gemini-api/docs/pricing#gemini-3.5-flash-lite), consultés le 10 novembre 2026.
+- [Configuration Maven](pom.xml), [guide de lancement](README.md) et [synthèse des vérifications](VALIDATION.md).
+- [Résultats et extraits observés](observations/) et [déclaration d’utilisation de l’IA](IA.md).
