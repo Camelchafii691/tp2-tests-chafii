@@ -6,6 +6,8 @@ import dev.langchain4j.agent.tool.P;
 import dev.langchain4j.agent.tool.Tool;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -67,6 +69,37 @@ public class MeteoTool {
             pluie |= proba > seuilPluie;
         }
         return pluie;
+    }
+
+    @Tool("""
+        Recherche les coordonnées d’une ville par son nom en anglais avant d’utiliser l’outil pluie.
+        Retourne [latitude, longitude]. Pour lever une ambiguïté, utiliser Ville,Pays en anglais,
+        par exemple Rabat,Morocco. Ne pas inventer de coordonnées si la recherche échoue.
+        """)
+    public double[] getCoordonnees(@P("Nom de ville en anglais, éventuellement suivi de ,Pays en anglais") String ville) {
+        if (ville == null || ville.isBlank()) throw new IllegalArgumentException("Le nom de ville est obligatoire.");
+        String[] morceaux = ville.trim().split(",", 2);
+        String nom = morceaux[0].trim();
+        if (nom.isBlank()) throw new IllegalArgumentException("Le nom de ville est obligatoire.");
+        String pays = morceaux.length == 2 ? morceaux[1].trim() : "";
+        String url = "https://geocoding-api.open-meteo.com/v1/search?name="
+                + URLEncoder.encode(nom, StandardCharsets.UTF_8) + "&count=10&language=en&format=json";
+        JsonObject json = lireJson(url);
+        if (json.has("results")) {
+            for (var valeur : json.getAsJsonArray("results")) {
+                JsonObject lieu = valeur.getAsJsonObject();
+                boolean paysCorrect = pays.isEmpty()
+                        || (lieu.has("country") && lieu.get("country").getAsString().equalsIgnoreCase(pays))
+                        || (lieu.has("country_code") && lieu.get("country_code").getAsString().equalsIgnoreCase(pays));
+                if (paysCorrect) {
+                    double latitude = lieu.get("latitude").getAsDouble();
+                    double longitude = lieu.get("longitude").getAsDouble();
+                    System.out.printf(Locale.ROOT, "Géocodage %s : %.5f, %.5f%n", ville, latitude, longitude);
+                    return new double[]{latitude, longitude};
+                }
+            }
+        }
+        throw new IllegalArgumentException("Aucune coordonnée trouvée pour la ville : " + ville);
     }
 
     private JsonObject lireJson(String url) {
