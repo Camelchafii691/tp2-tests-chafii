@@ -1,7 +1,7 @@
 package ma.emsi.chafii.tp2;
 
 import dev.langchain4j.model.embedding.EmbeddingModel;
-import dev.langchain4j.model.embedding.onnx.bgesmallenv15.BgeSmallEnV15EmbeddingModel;
+import dev.langchain4j.model.embedding.onnx.bgesmallenv15q.BgeSmallEnV15QuantizedEmbeddingModel;
 import dev.langchain4j.model.google.genai.GoogleGenAiEmbeddingModel;
 import dev.langchain4j.model.google.genai.GoogleGenAiEmbeddingModel.TaskTypeEnum;
 import dev.langchain4j.store.embedding.CosineSimilarity;
@@ -18,7 +18,7 @@ public class Test4Embeddings {
     };
 
     public static void main(String[] args) {
-        comparer("BGE small anglais (local)", new BgeSmallEnV15EmbeddingModel());
+        comparer("BGE small anglais quantifié (local, fourni par EasyRAG)", new BgeSmallEnV15QuantizedEmbeddingModel());
         if (args.length > 0 && args[0].equals("--local")) {
             System.out.println("Mode local : comparaison Google non exécutée.");
             return;

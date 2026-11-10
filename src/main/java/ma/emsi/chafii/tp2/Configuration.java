@@ -21,10 +21,14 @@ public final class Configuration {
     }
 
     public static GoogleGenAiChatModel modele() {
+        return modele(0.7);
+    }
+
+    public static GoogleGenAiChatModel modele(double temperature) {
         return GoogleGenAiChatModel.builder()
                 .apiKey(cleApi())
                 .modelName(variable("GEMINI_MODEL", "gemini-3.5-flash"))
-                .temperature(0.7)
+                .temperature(temperature)
                 .timeout(Duration.ofSeconds(60))
                 .maxRetries(0)
                 .logRequestsAndResponses(Boolean.parseBoolean(variable("GEMINI_LOG", "false")))
