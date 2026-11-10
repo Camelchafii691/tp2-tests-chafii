@@ -13,7 +13,7 @@ public final class Configuration {
     }
 
     public static String cleApi() {
-        String cle = System.getenv("GEMINI_API_KEY");
+        String cle = variable("GEMINI_API_KEY", System.getenv("GEMINI_KEY"));
         if (cle == null || cle.isBlank()) {
             throw new IllegalStateException("Définir GEMINI_API_KEY dans les variables d’environnement avant ce test.");
         }
@@ -25,13 +25,18 @@ public final class Configuration {
     }
 
     public static GoogleGenAiChatModel modele(double temperature) {
+        return modele(variable("GEMINI_MODEL", "gemini-3.5-flash"), temperature,
+                Boolean.parseBoolean(variable("GEMINI_LOG", "false")));
+    }
+
+    public static GoogleGenAiChatModel modele(String nom, double temperature, boolean logs) {
         return GoogleGenAiChatModel.builder()
                 .apiKey(cleApi())
-                .modelName(variable("GEMINI_MODEL", "gemini-3.5-flash"))
+                .modelName(nom)
                 .temperature(temperature)
                 .timeout(Duration.ofSeconds(60))
                 .maxRetries(0)
-                .logRequestsAndResponses(Boolean.parseBoolean(variable("GEMINI_LOG", "false")))
+                .logRequestsAndResponses(logs)
                 .build();
     }
 }

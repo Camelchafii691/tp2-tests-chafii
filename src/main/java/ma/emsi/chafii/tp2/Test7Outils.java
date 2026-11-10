@@ -6,7 +6,10 @@ import ma.emsi.chafii.tp2.outil.meteo.MeteoTool;
 
 public class Test7Outils {
     public static void main(String[] args) {
-        var modele = Configuration.modele();
+        boolean logs = java.util.Arrays.asList(args).contains("--logs");
+        var modele = logs
+                ? Configuration.modele(Configuration.variable("GEMINI_MODEL", "gemini-3.5-flash"), 0.7, true)
+                : Configuration.modele();
         if (args.length > 0 && args[0].equals("--sans-outil")) {
             String question = "Je dois partir dans 2 jours à Paris ; j’y resterai 3 jours. Est-ce que je dois mettre un parapluie dans mes valises ?";
             System.out.println("Question sans outils : " + question);

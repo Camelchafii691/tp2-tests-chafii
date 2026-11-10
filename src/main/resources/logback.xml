@@ -2,6 +2,6 @@
   <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
     <encoder><pattern>%d{HH:mm:ss} %-5level %logger{36} - %msg%n</pattern></encoder>
   </appender>
-  <logger name="dev.langchain4j" level="INFO"/>
+  <logger name="dev.langchain4j" level="${LANGCHAIN4J_LOG_LEVEL:-INFO}"/>
   <root level="WARN"><appender-ref ref="CONSOLE"/></root>
 </configuration>
