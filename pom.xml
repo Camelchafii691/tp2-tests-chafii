@@ -12,6 +12,7 @@
     <langchain4j.beta.version>1.23.0-beta33</langchain4j.beta.version>
   </properties>
   <dependencies>
+    <dependency><groupId>com.google.code.gson</groupId><artifactId>gson</artifactId><version>2.15.0</version></dependency>
     <!-- Ancien modèle explicite du test 4 : désactivé pour éviter un double fournisseur avec EasyRAG.
     <dependency><groupId>dev.langchain4j</groupId><artifactId>langchain4j-embeddings-bge-small-en-v15</artifactId><version>${langchain4j.beta.version}</version></dependency>
     -->
