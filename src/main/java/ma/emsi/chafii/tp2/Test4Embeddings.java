@@ -36,9 +36,14 @@ public class Test4Embeddings {
 
     private static void comparer(String nom, EmbeddingModel modele) {
         System.out.println("\nModèle : " + nom);
-        for (String[] couple : PHRASES) {
-            var a = modele.embed(couple[0]).content();
-            var b = modele.embed(couple[1]).content();
+        // Un lot évite douze requêtes séparées au modèle Google.
+        var segments = java.util.Arrays.stream(PHRASES).flatMap(java.util.Arrays::stream)
+                .map(dev.langchain4j.data.segment.TextSegment::from).toList();
+        var embeddings = modele.embedAll(segments).content();
+        for (int i = 0; i < PHRASES.length; i++) {
+            String[] couple = PHRASES[i];
+            var a = embeddings.get(2 * i);
+            var b = embeddings.get(2 * i + 1);
             double similarite = CosineSimilarity.between(a, b);
             System.out.printf(java.util.Locale.ROOT, "%s | %s | %.6f%n", couple[0], couple[1], similarite);
         }
